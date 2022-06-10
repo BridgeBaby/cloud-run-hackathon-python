@@ -39,7 +39,7 @@ def move():
     logger.info(request.json)
     act = gamer.next_step(data)
     logger.info(act)
-    return 
+    return act
 
 if __name__ == "__main__":
   app.run(debug=False,host='0.0.0.0',port=int(os.environ.get('PORT', 8080)))
