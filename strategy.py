@@ -14,11 +14,11 @@ class Strategy:
         self.my_url = request['_links']['self']['href']
     
     def get_arena_size(self, request):
-        height, weight = request['arena']['dims']
-        self.arena = np.zeros((height, weight))
-        self.face_border_list = list(zip([0, 0, height-1, weight-1], ['N', 'W', 'S', 'E']))
-        self.right_along_border_list = list(zip([0, 0, height-1, weight-1], ['W', 'S', 'E', 'N']))
-        self.left_along_border_list = list(zip([0, 0, height-1, weight-1], ['E', 'N', 'W', 'S']))
+        width, height = request['arena']['dims']
+        self.arena = np.zeros((height, width))
+        self.face_border_list = list(zip([0, 0, height-1, width-1], ['N', 'W', 'S', 'E']))
+        self.right_along_border_list = list(zip([0, 0, height-1, width-1], ['W', 'S', 'E', 'N']))
+        self.left_along_border_list = list(zip([0, 0, height-1, width-1], ['E', 'N', 'W', 'S']))
     
     def draw_map(self, request):
         usr_loc = self.arena.copy()
@@ -100,6 +100,7 @@ class Strategy:
             self.get_arena_size(request)
             self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
+        print(self.my_direction)
         if danger_zone[self.my_coor]:
             return self.escape()
         
@@ -119,10 +120,14 @@ class Strategy:
             else:
                 if self.is_right_along_boreder():
                     return random.choice(['F', 'L'])
-                if self.is_left_along_boreder():
+                elif self.is_left_along_boreder():
                     return random.choice(['F', 'R'])
+                else:
+                    return random.choice(['F', 'L', 'R'])
+            
         
     def next_step(self, request):
         action = self.action(request)
         self.last_action = action
         return action
+    
