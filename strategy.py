@@ -104,7 +104,6 @@ class Strategy:
             self.get_arena_size(request)
             self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
-        print(usr_loc)
         if danger_zone[self.my_coor]:
             return self.escape()
         
@@ -132,6 +131,6 @@ class Strategy:
         
     def next_step(self, request):
         action = self.action(request)
-        print(self.my_coor, self.my_direction)
+        print(action)
         self.last_action = action
         return action
