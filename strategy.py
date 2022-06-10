@@ -1,7 +1,7 @@
 import numpy as np
 import random
 
-class Water:
+class Strategy:
     def __init__(self):
         self.arena = np.zeros((0, 0))
         self.my_url = None
@@ -83,7 +83,7 @@ class Water:
     def action(self):
         pass
     
-    def start_fight(self, request):
+    def next_step(self, request):
         self.get_arena_size(request)
         self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
