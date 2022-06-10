@@ -68,17 +68,21 @@ class Strategy:
     
     def target_in_fire_range(self, usr_loc):
         y, x = self.my_coor
+        # print(y, x)
+        # x = x-1
+        # y = y-1
+        # print(y, x)
         if self.my_direction == 'N':
             fire_range = max(0, y-3)
             target_in_range = usr_loc[fire_range: y, x]
         elif self.my_direction == 'S':
-            fire_range = y+3
+            fire_range = min(self.arena.shape[1], y+3)
             target_in_range = usr_loc[y: fire_range, x]
         elif self.my_direction == 'W':
             fire_range = max(0, x-3)
             target_in_range = usr_loc[y, fire_range: x]
         elif self.my_direction == 'E':
-            fire_range = x+3
+            fire_range = min(self.arena.shape[0], x+3)
             target_in_range = usr_loc[y, x: fire_range]
         else:
             return 0
@@ -100,6 +104,7 @@ class Strategy:
             self.get_arena_size(request)
             self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
+        print(usr_loc)
         if danger_zone[self.my_coor]:
             return self.escape()
         
@@ -127,6 +132,6 @@ class Strategy:
         
     def next_step(self, request):
         action = self.action(request)
+        print(self.my_coor, self.my_direction)
         self.last_action = action
         return action
-    
