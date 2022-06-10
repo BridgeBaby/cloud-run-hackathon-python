@@ -3,11 +3,12 @@ import random
 
 class Strategy:
     def __init__(self):
-        self.arena = np.zeros((0, 0))
+        self.arena = None
         self.my_url = None
         self.my_coor = (0, 0)
         self.my_direction = None
         self.face_border_list = None
+        self.last_action = None
         
     def get_my_url(self, request):
         self.my_url = request['_links']['self']['href']
@@ -15,14 +16,16 @@ class Strategy:
     def get_arena_size(self, request):
         height, weight = request['arena']['dims']
         self.arena = np.zeros((height, weight))
-        self.face_border_list = zip([0, 0, height-1, weight-1], ['N', 'W', 'S', 'E'])
+        self.face_border_list = list(zip([0, 0, height-1, weight-1], ['N', 'W', 'S', 'E']))
+        self.right_along_border_list = list(zip([0, 0, height-1, weight-1], ['W', 'S', 'E', 'N']))
+        self.left_along_border_list = list(zip([0, 0, height-1, weight-1], ['E', 'N', 'W', 'S']))
     
     def draw_map(self, request):
         usr_loc = self.arena.copy()
         danger_zone = self.arena.copy()
         makrov_map = self.arena.copy() * 0.
         for url, info in request['arena']['state'].items():
-            y, x, direction, is_hit, score = info.values()
+            x, y, direction, is_hit, score = info.values()
             if url == me_url:
                 self.my_coor = (y, x)
                 self.my_direction = direction
@@ -51,9 +54,20 @@ class Strategy:
                 return True
         return False
     
+    def is_right_along_boreder(self):
+        for status in list(zip(self.my_coor, self.my_direction*2)):
+            if status in self.right_along_border_list:
+                return True
+        return False
+    
+    def is_left_along_boreder(self):
+        for status in list(zip(self.my_coor, self.my_direction*2)):
+            if status in self.left_along_border_list:
+                return True
+        return False
+    
     def target_in_fire_range(self, usr_loc):
         x, y = self.my_coor
-        print(y, x, self.my_direction)
         if self.my_direction == 'N':
             fire_range = max(0, y-3)
             target_in_range = usr_loc[fire_range: y, x]
@@ -66,7 +80,6 @@ class Strategy:
         elif self.my_direction == 'E':
             fire_range = x+3
             target_in_range = usr_loc[y, x: fire_range]
-        print(sum(target_in_range))
         return sum(target_in_range)
 
     def escape(self):
@@ -80,13 +93,12 @@ class Strategy:
     def fire(self):
         return 'T'
     
-    def action(self):
-        pass
-    
-    def next_step(self, request):
-        self.get_arena_size(request)
-        self.get_my_url(request)
+    def action(self, request):
+        if self.arena is None:
+            self.get_arena_size(request)
+            self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
+        print(usr_loc)
         if danger_zone[self.my_coor]:
             return self.escape()
         
@@ -95,4 +107,22 @@ class Strategy:
         elif self.face_border:
             return random.choice(['R', 'L'])
         else:
-            return random.choice(['F', 'R', 'L'])
+            if self.last_action == 'R':
+                if self.is_right_along_boreder:
+                    return 'F'
+                return random.choice(['F', 'R'])
+            elif self.last_action == 'L':
+                if self.is_left_along_boreder:
+                    return 'F'
+                return random.choice(['F', 'L'])
+            else:
+                if self.is_right_along_boreder():
+                    return random.choice(['F', 'L'])
+                if self.is_left_along_boreder():
+                    return random.choice(['F', 'R'])
+        
+    def next_step(self, request):
+        action = self.action(request)
+        print(self.my_coor, self.my_direction)
+        self.last_action = action
+        return action
