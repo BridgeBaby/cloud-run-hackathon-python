@@ -67,9 +67,7 @@ class Strategy:
         return False
     
     def target_in_fire_range(self, usr_loc):
-        x, y = self.my_coor
-        x = x-1
-        y = y-1
+        y, x = self.my_coor
         if self.my_direction == 'N':
             fire_range = max(0, y-3)
             target_in_range = usr_loc[fire_range: y, x]
