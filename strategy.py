@@ -26,7 +26,7 @@ class Strategy:
         makrov_map = self.arena.copy() * 0.
         for url, info in request['arena']['state'].items():
             x, y, direction, is_hit, score = info.values()
-            if url == me_url:
+            if url == self.my_url :
                 self.my_coor = (y, x)
                 self.my_direction = direction
                 self.face_border = self.is_face_boreder()
@@ -80,6 +80,8 @@ class Strategy:
         elif self.my_direction == 'E':
             fire_range = x+3
             target_in_range = usr_loc[y, x: fire_range]
+        else:
+            return 0
         return sum(target_in_range)
 
     def escape(self):
@@ -98,7 +100,6 @@ class Strategy:
             self.get_arena_size(request)
             self.get_my_url(request)
         usr_loc, danger_zone = self.draw_map(request)
-
         if danger_zone[self.my_coor]:
             return self.escape()
         
