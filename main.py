@@ -34,6 +34,7 @@ def index():
 @app.route("/", methods=['POST'])
 def move():
     data = request.get_data()
+    data = json.loads(data)
     logger.info(request.json)
     return gamer.next_step(data)
 
